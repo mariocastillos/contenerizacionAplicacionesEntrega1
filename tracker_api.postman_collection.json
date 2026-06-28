@@ -1,0 +1,237 @@
+{
+	"info": {
+		"_postman_id": "7a35e80d-8386-4e55-8cb6-23945efd1230",
+		"name": "Project & Task Tracker API",
+		"description": "Colección de solicitudes HTTP para probar y validar la API de la aplicación 'Project & Task Tracker' contenerizada con Docker. Diseñado para la Actividad Sumativa Unidad 2.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Diagnóstico",
+			"item": [
+				{
+					"name": "Obtener Información Docker",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/docker-info",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"docker-info"
+							]
+						},
+						"description": "Retorna información del contenedor y del entorno operativo de Node, comprobando que la API se ejecuta dentro de un contenedor Docker."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Datos Semilla (Seed)",
+			"item": [
+				{
+					"name": "Precargar 15 Registros Semilla",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/seed",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"seed"
+							]
+						},
+						"description": "Limpia las tablas de la base de datos MySQL y precarga automáticamente 15 registros de prueba relacionados (5 proyectos y 10 tareas) para cumplir de inmediato con el volumen de datos exigido."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Proyectos",
+			"item": [
+				{
+					"name": "Obtener Todos los Proyectos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/proyectos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"proyectos"
+							]
+						},
+						"description": "Obtiene la lista completa de todos los proyectos ordenados de manera descendente."
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Nuevo Proyecto (8 Campos)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Sistema de Control de Calidad\",\n    \"cliente\": \"Laboratorios Bios S.A.\",\n    \"presupuesto\": 85000.50,\n    \"prioridad\": \"Alta\",\n    \"fecha_inicio\": \"2026-07-01\",\n    \"activo\": true,\n    \"descripcion\": \"Desarrollo del módulo de control de lotes y aseguramiento de calidad para manufactura.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/proyectos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"proyectos"
+							]
+						},
+						"description": "Crea un nuevo proyecto en la base de datos utilizando las 8 columnas requeridas."
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Proyecto (Cascada)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/proyectos/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"proyectos",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "ID del proyecto a eliminar"
+								}
+							]
+						},
+						"description": "Elimina un proyecto específico. La base de datos eliminará automáticamente todas las tareas asociadas al proyecto en cascada."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tareas",
+			"item": [
+				{
+					"name": "Obtener Todas las Tareas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tareas",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tareas"
+							]
+						},
+						"description": "Retorna el listado completo de tareas individuales registradas en la base de datos MySQL, indicando el nombre del proyecto al que pertenecen."
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Nueva Tarea (8 Campos)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"proyecto_id\": 1,\n    \"titulo\": \"Crear esquemas lógicos SQL\",\n    \"responsable\": \"Esteban Soto\",\n    \"fecha_entrega\": \"2026-07-10\",\n    \"horas_estimadas\": 24,\n    \"costo_estimado\": 1250.00,\n    \"completada\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tareas",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tareas"
+							]
+						},
+						"description": "Inserta una nueva tarea asociada a un proyecto existente (dependencia 1-N)."
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Tarea",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tareas/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tareas",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "ID de la tarea a eliminar"
+								}
+							]
+						},
+						"description": "Elimina una tarea específica por su ID de la base de datos."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000/api",
+			"type": "string"
+		}
+	]
+}

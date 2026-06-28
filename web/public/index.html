@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project & Task Tracker - Docker Environment</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome para Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Hojas de Estilo Personalizadas -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar de Navegación -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="fa-brands fa-docker"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>DockerTracker</h2>
+                    <span>Unidad 2 - Actividad</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-tab="dashboard">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </button>
+                <button class="nav-btn" data-tab="proyectos">
+                    <i class="fa-solid fa-folder-open"></i> Proyectos
+                </button>
+                <button class="nav-btn" data-tab="tareas">
+                    <i class="fa-solid fa-list-check"></i> Tareas
+                </button>
+
+            </nav>
+            <div class="sidebar-footer">
+                <div class="docker-badge">
+                    <span class="status-dot pulsing"></span>
+                    <span id="docker-status-text">Detectando Docker...</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="main-content">
+            <!-- Header Superior -->
+            <header class="main-header">
+                <div class="header-title">
+                    <h1 id="current-tab-title">Panel de Control</h1>
+                    <p id="current-tab-desc">Vista consolidada y estadísticas del sistema de proyectos.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="btn-quick-seed">
+                        <i class="fa-solid fa-database"></i> Precargar 15 Datos Semilla
+                    </button>
+                    <button class="btn btn-primary" id="btn-open-project-modal">
+                        <i class="fa-solid fa-plus"></i> Nuevo Proyecto
+                    </button>
+                </div>
+            </header>
+
+            <!-- CONTENIDO DE PESTAÑAS -->
+
+            <!-- Pestaña 1: Dashboard -->
+            <section id="tab-dashboard" class="tab-content active">
+                <!-- Tarjetas de Métricas -->
+                <div class="metrics-grid">
+                    <div class="metric-card bg-gradient-purple">
+                        <div class="metric-info">
+                            <h3>Presupuesto Total</h3>
+                            <span class="metric-value" id="stat-budget">$0.00</span>
+                        </div>
+                        <div class="metric-icon">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        </div>
+                    </div>
+                    <div class="metric-card bg-gradient-blue">
+                        <div class="metric-info">
+                            <h3>Proyectos Activos</h3>
+                            <span class="metric-value" id="stat-active-projects">0</span>
+                        </div>
+                        <div class="metric-icon">
+                            <i class="fa-solid fa-briefcase"></i>
+                        </div>
+                    </div>
+                    <div class="metric-card bg-gradient-green">
+                        <div class="metric-info">
+                            <h3>Progreso Tareas</h3>
+                            <span class="metric-value" id="stat-tasks-progress">0%</span>
+                            <span class="metric-sub" id="stat-tasks-count">0 / 0 tareas completadas</span>
+                        </div>
+                        <div class="metric-icon">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                    <div class="metric-card bg-gradient-orange">
+                        <div class="metric-info">
+                            <h3>Esfuerzo Promedio</h3>
+                            <span class="metric-value" id="stat-avg-hours">0h</span>
+                            <span class="metric-sub">Horas estimadas por tarea</span>
+                        </div>
+                        <div class="metric-icon">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de Distribución y Semilla -->
+                <div class="dashboard-sections">
+                    <div class="dashboard-card main-chart-card">
+                        <div class="card-header">
+                            <h2>Distribución de Proyectos por Prioridad</h2>
+                        </div>
+                        <div class="priority-chart-container">
+                            <div class="chart-bar-wrapper">
+                                <span class="chart-label">Alta</span>
+                                <div class="chart-bar-bg">
+                                    <div class="chart-bar-fill bg-priority-high" id="bar-priority-high" style="width: 0%"></div>
+                                </div>
+                                <span class="chart-value-label" id="val-priority-high">0</span>
+                            </div>
+                            <div class="chart-bar-wrapper">
+                                <span class="chart-label">Media</span>
+                                <div class="chart-bar-bg">
+                                    <div class="chart-bar-fill bg-priority-medium" id="bar-priority-medium" style="width: 0%"></div>
+                                </div>
+                                <span class="chart-value-label" id="val-priority-medium">0</span>
+                            </div>
+                            <div class="chart-bar-wrapper">
+                                <span class="chart-label">Baja</span>
+                                <div class="chart-bar-bg">
+                                    <div class="chart-bar-fill bg-priority-low" id="bar-priority-low" style="width: 0%"></div>
+                                </div>
+                                <span class="chart-value-label" id="val-priority-low">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card seed-info-card">
+                        <div class="card-header">
+                            <h2>Requisito: Cargar 15 Datos</h2>
+                        </div>
+                        <p>La rúbrica exige almacenar de manera persistente <strong>al menos 15 datos</strong> de diferentes tipos y mostrar las relaciones.</p>
+                        <p class="text-muted">Presiona el botón de precarga rápida para reiniciar la base de datos e insertar un juego óptimo de <strong>5 proyectos y 10 tareas relacionadas (15 registros totales)</strong>.</p>
+                        <div class="seed-action-area">
+                            <button class="btn btn-accent btn-large" id="btn-dashboard-seed">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Sembrar 15 Registros Ahora
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pestaña 2: Proyectos -->
+            <section id="tab-proyectos" class="tab-content">
+                <div class="section-actions">
+                    <h2>Listado de Proyectos Registrados</h2>
+                    <button class="btn btn-primary" id="btn-new-project-inline">
+                        <i class="fa-solid fa-plus"></i> Registrar Proyecto
+                    </button>
+                </div>
+                <div class="projects-grid" id="projects-container">
+                    <!-- Se rellenará dinámicamente -->
+                    <div class="loading-state">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Cargando proyectos...
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pestaña 3: Tareas -->
+            <section id="tab-tareas" class="tab-content">
+                <div class="section-actions">
+                    <h2>Listado de Tareas Individuales</h2>
+                    <button class="btn btn-primary" id="btn-open-task-modal">
+                        <i class="fa-solid fa-plus"></i> Registrar Tarea
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Título de la Tarea</th>
+                                <th>Proyecto Relacionado</th>
+                                <th>Responsable</th>
+                                <th>Fecha de Entrega</th>
+                                <th>Horas Est.</th>
+                                <th>Costo Est.</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasks-table-body">
+                            <!-- Se rellenará dinámicamente -->
+                            <tr>
+                                <td colspan="9" class="text-center">Cargando tareas...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+
+        </main>
+    </div>
+
+    <!-- MODAL: NUEVO PROYECTO -->
+    <div class="modal-overlay" id="project-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Registrar Nuevo Proyecto (8 Campos)</h2>
+                <button class="modal-close" id="btn-close-project-modal">&times;</button>
+            </div>
+            <form id="form-new-project">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="p-nombre">Nombre del Proyecto <span class="required">*</span></label>
+                        <input type="text" id="p-nombre" required placeholder="Ej. Rediseño CRM">
+                    </div>
+                    <div class="form-group">
+                        <label for="p-cliente">Cliente <span class="required">*</span></label>
+                        <input type="text" id="p-cliente" required placeholder="Ej. Alimentos del Sur">
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="p-presupuesto">Presupuesto ($) <span class="required">*</span></label>
+                            <input type="number" step="0.01" id="p-presupuesto" required placeholder="Ej. 25000.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="p-prioridad">Prioridad <span class="required">*</span></label>
+                            <select id="p-prioridad" required>
+                                <option value="Baja">Baja</option>
+                                <option value="Media" selected>Media</option>
+                                <option value="Alta">Alta</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="p-fecha-inicio">Fecha de Inicio <span class="required">*</span></label>
+                            <input type="date" id="p-fecha-inicio" required>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="p-activo" checked>
+                            <label for="p-activo">Proyecto Activo</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="p-descripcion">Descripción del Proyecto</label>
+                        <textarea id="p-descripcion" rows="3" placeholder="Descripción breve de los objetivos y alcances..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-project">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Proyecto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: NUEVA TAREA -->
+    <div class="modal-overlay" id="task-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Registrar Nueva Tarea (8 Campos)</h2>
+                <button class="modal-close" id="btn-close-task-modal">&times;</button>
+            </div>
+            <form id="form-new-task">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="t-proyecto">Proyecto Relacionado (Dependencia) <span class="required">*</span></label>
+                        <select id="t-proyecto" required>
+                            <option value="">Seleccione un proyecto...</option>
+                            <!-- Rellenado dinámicamente -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="t-titulo">Título de la Tarea <span class="required">*</span></label>
+                        <input type="text" id="t-titulo" required placeholder="Ej. Implementar autenticación JWT">
+                    </div>
+                    <div class="form-group">
+                        <label for="t-responsable">Responsable <span class="required">*</span></label>
+                        <input type="text" id="t-responsable" required placeholder="Ej. Ana Gómez">
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="t-fecha-entrega">Fecha de Entrega <span class="required">*</span></label>
+                            <input type="date" id="t-fecha-entrega" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="t-horas">Horas Estimadas <span class="required">*</span></label>
+                            <input type="number" id="t-horas" required placeholder="Ej. 16">
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="t-costo">Costo Estimado ($)</label>
+                            <input type="number" step="0.01" id="t-costo" placeholder="Ej. 800.00" value="0.00">
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="t-completada">
+                            <label for="t-completada">Tarea Completada</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-task">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- NOTIFICACIÓN FLOTANTE (TOAST) -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

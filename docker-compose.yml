@@ -1,0 +1,57 @@
+
+services:
+  # Servicio 1: Base de Datos Relacional (MySQL 8.0)
+  db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    container_name: tracker_mysql_db
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: tracker_db
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - tracker_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecret"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Servicio 2: Servidor Web (Node.js Express + Frontend SPA)
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: tracker_web_server
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: secret
+      DB_NAME: tracker_db
+      DB_PORT: 3306
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - tracker_net
+
+volumes:
+  # Volumen persistente para los archivos de datos de la base de datos
+  db_data:
+    name: tracker_db_persistent_data
+
+networks:
+  # Red aislada tipo bridge para intercomunicar los contenedores
+  tracker_net:
+    name: tracker_isolated_network
+    driver: bridge

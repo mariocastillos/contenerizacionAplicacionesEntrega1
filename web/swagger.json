@@ -1,0 +1,312 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Project & Task Tracker API",
+    "description": "API REST para la gestión de proyectos y tareas, desarrollada para la Actividad Sumativa de la Unidad 2 (Contenerización de Aplicaciones de Software).",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Soporte de Desarrollo"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Servidor de API local en el contenedor"
+    }
+  ],
+  "paths": {
+    "/proyectos": {
+      "get": {
+        "summary": "Obtener todos los proyectos",
+        "description": "Retorna la lista completa de proyectos registrados en la base de datos.",
+        "responses": {
+          "200": {
+            "description": "Lista de proyectos obtenida exitosamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Proyecto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor al consultar la base de datos."
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear un nuevo proyecto",
+        "description": "Registra un nuevo proyecto con sus 8 variables correspondientes.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProyectoInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Proyecto creado exitosamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensaje": { "type": "string" },
+                    "id": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos de entrada inválidos o incompletos."
+          },
+          "500": {
+            "description": "Error del servidor al insertar el proyecto."
+          }
+        }
+      }
+    },
+    "/proyectos/{id}": {
+      "delete": {
+        "summary": "Eliminar un proyecto",
+        "description": "Elimina un proyecto específico por su ID. La eliminación se propaga en cascada a sus tareas asociadas.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID del proyecto a eliminar",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Proyecto eliminado exitosamente."
+          },
+          "404": {
+            "description": "Proyecto no encontrado."
+          },
+          "500": {
+            "description": "Error del servidor al eliminar el proyecto."
+          }
+        }
+      }
+    },
+    "/tareas": {
+      "get": {
+        "summary": "Obtener todas las tareas",
+        "description": "Retorna la lista completa de tareas, incluyendo información de su proyecto relacionado.",
+        "responses": {
+          "200": {
+            "description": "Lista de tareas obtenida exitosamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tarea"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor al consultar la base de datos."
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear una nueva tarea",
+        "description": "Registra una nueva tarea vinculada a un proyecto existente (dependencia).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TareaInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tarea creada exitosamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensaje": { "type": "string" },
+                    "id": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos de entrada inválidos o proyecto no existe."
+          },
+          "500": {
+            "description": "Error del servidor al insertar la tarea."
+          }
+        }
+      }
+    },
+    "/tareas/{id}": {
+      "delete": {
+        "summary": "Eliminar una tarea",
+        "description": "Elimina una tarea específica por su ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID de la tarea a eliminar",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tarea eliminada exitosamente."
+          },
+          "404": {
+            "description": "Tarea no encontrada."
+          },
+          "500": {
+            "description": "Error del servidor al eliminar la tarea."
+          }
+        }
+      }
+    },
+    "/seed": {
+      "post": {
+        "summary": "Cargar registros semilla de prueba",
+        "description": "Limpia y precarga la base de datos con al menos 15 registros relacionados de prueba (5 proyectos y 10 tareas) para demostración rápida de persistencia y volumen de datos.",
+        "responses": {
+          "200": {
+            "description": "Datos semilla insertados correctamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensaje": { "type": "string" },
+                    "proyectosInsertados": { "type": "integer" },
+                    "tareasInsertadas": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor al realizar la inserción de datos semilla."
+          }
+        }
+      }
+    },
+    "/docker-info": {
+      "get": {
+        "summary": "Obtener información de Docker",
+        "description": "Retorna información diagnóstica sobre el entorno de ejecución, demostrando que la aplicación corre dentro de un contenedor Docker.",
+        "responses": {
+          "200": {
+            "description": "Información del entorno Docker obtenida exitosamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "enDocker": { "type": "boolean" },
+                    "hostname": { "type": "string" },
+                    "plataforma": { "type": "string" },
+                    "arquitectura": { "type": "string" },
+                    "nodeVersion": { "type": "string" },
+                    "variablesEntorno": {
+                      "type": "object",
+                      "properties": {
+                        "NODE_ENV": { "type": "string" },
+                        "PORT": { "type": "string" },
+                        "DB_HOST": { "type": "string" },
+                        "DB_NAME": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Proyecto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "nombre": { "type": "string", "example": "Migración Cloud 2026" },
+          "descripcion": { "type": "string", "example": "Migración de la infraestructura local a AWS." },
+          "presupuesto": { "type": "number", "format": "float", "example": 75000.00 },
+          "fecha_inicio": { "type": "string", "format": "date", "example": "2026-01-15" },
+          "activo": { "type": "boolean", "example": true },
+          "prioridad": { "type": "string", "example": "Alta" },
+          "cliente": { "type": "string", "example": "TechCorp Inc." }
+        }
+      },
+      "ProyectoInput": {
+        "type": "object",
+        "required": ["nombre", "presupuesto", "fecha_inicio", "prioridad", "cliente"],
+        "properties": {
+          "nombre": { "type": "string", "example": "Nuevo Portal E-commerce" },
+          "descripcion": { "type": "string", "example": "Desarrollo de una tienda online responsiva." },
+          "presupuesto": { "type": "number", "format": "float", "example": 45000.00 },
+          "fecha_inicio": { "type": "string", "format": "date", "example": "2026-06-01" },
+          "activo": { "type": "boolean", "default": true, "example": true },
+          "prioridad": { "type": "string", "enum": ["Baja", "Media", "Alta"], "example": "Media" },
+          "cliente": { "type": "string", "example": "Retail Group" }
+        }
+      },
+      "Tarea": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "proyecto_id": { "type": "integer", "example": 1 },
+          "proyecto_nombre": { "type": "string", "example": "Migración Cloud 2026" },
+          "titulo": { "type": "string", "example": "Diseño de arquitectura VPC" },
+          "responsable": { "type": "string", "example": "María Delgado" },
+          "fecha_entrega": { "type": "string", "format": "date", "example": "2026-02-01" },
+          "horas_estimadas": { "type": "integer", "example": 40 },
+          "completada": { "type": "boolean", "example": true },
+          "costo_estimado": { "type": "number", "format": "float", "example": 2500.00 }
+        }
+      },
+      "TareaInput": {
+        "type": "object",
+        "required": ["proyecto_id", "titulo", "responsable", "fecha_entrega", "horas_estimadas"],
+        "properties": {
+          "proyecto_id": { "type": "integer", "example": 1 },
+          "titulo": { "type": "string", "example": "Configurar balanceador de carga ALB" },
+          "responsable": { "type": "string", "example": "Carlos Mendoza" },
+          "fecha_entrega": { "type": "string", "format": "date", "example": "2026-07-20" },
+          "horas_estimadas": { "type": "integer", "example": 24 },
+          "completada": { "type": "boolean", "default": false, "example": false },
+          "costo_estimado": { "type": "number", "format": "float", "default": 0.00, "example": 1200.00 }
+        }
+      }
+    }
+  }
+}
