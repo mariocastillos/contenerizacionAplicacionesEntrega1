@@ -4,7 +4,7 @@ Este proyecto se trata de un **Sistema de Control de Proyectos y Tareas** de niv
 
 ---
 
-## 🚀 Características 
+## 🚀 Características
 
 **Persistencia y Base de Datos Relacional (MySQL)**:
 
@@ -160,5 +160,154 @@ Una vez levantado, abre tu navegador web favorito y accede a las siguientes dire
 2.  Haz clic en **Import** (Importar) y selecciona el archivo `tracker_api.postman_collection.json` ubicado en la raíz del proyecto.
 3.  Se creará la colección **Project & Task Tracker API** con todas las consultas pre-estructuradas.
 4.  Ejecuta las peticiones para crear, obtener y eliminar registros. Las rutas ya utilizan la variable de colección `{{baseUrl}}` apuntando a tu puerto local `3000`.
+
+---
+
+## 🐳 Comandos Docker Utilizados
+
+### 🔴 Limpieza del Entorno
+
+```
+# Detener y eliminar contenedores, red y volúmenes del proyecto
+docker-compose down --volumes --remove-orphans
+
+# Detener contenedores individualmente
+docker stop tracker_web_server
+docker stop tracker_mysql_db
+
+# Eliminar contenedores individualmente
+docker rm tracker_web_server
+docker rm tracker_mysql_db
+
+# Eliminar imágenes del proyecto
+docker rmi contenerizaciondeapliaciones-web
+docker rmi contenerizaciondeapliaciones-db
+
+# Eliminar todas las imágenes sin etiquetar (dangling)
+docker image prune -f
+
+# Eliminar TODAS las imágenes del sistema ⚠️
+docker rmi $(docker images -aq) -f
+
+# Eliminar el volumen persistente de la base de datos
+docker volume rm contenerizaciondeapliaciones_db_data
+
+# Limpieza total del sistema Docker (contenedores, redes, imágenes, caché)
+docker system prune -a --volumes -f
+```
+
+### 🔨 Construcción de Imágenes por Separado
+
+```
+# Construir la imagen de la base de datos
+docker build -t tracker-db:latest ./db
+
+# Construir la imagen del servidor web
+docker build -t tracker-web:latest ./web
+
+# Verificar imágenes creadas
+docker images
+```
+
+### ▶️ Arrancar Contenedores por Separado (sin Compose)
+
+```
+# Crear la red compartida
+docker network create tracker_net
+
+# Crear el volumen persistente
+docker volume create db_data
+
+# Levantar el contenedor de Base de Datos
+docker run -d \
+  --name tracker_mysql_db \
+  --network tracker_net \
+  -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=secret \
+  -e MYSQL_DATABASE=tracker_db \
+  -v db_data:/var/lib/mysql \
+  --restart always \
+  tracker-db:latest
+
+# Verificar estado de salud de MySQL
+docker inspect --format='{{.State.Health.Status}}' tracker_mysql_db
+
+# Levantar el contenedor del Servidor Web
+docker run -d \
+  --name tracker_web_server \
+  --network tracker_net \
+  -p 3000:3000 \
+  -e NODE_ENV=production \
+  -e PORT=3000 \
+  -e DB_HOST=db \
+  -e DB_USER=root \
+  -e DB_PASSWORD=secret \
+  -e DB_NAME=tracker_db \
+  --restart always \
+  tracker-web:latest
+
+# Verificar que ambos contenedores corren
+docker ps
+```
+
+### 🚀 Arrancar en Conjunto con Docker Compose
+
+```
+# Construir imágenes y levantar todos los servicios
+docker-compose up -d --build
+
+# Levantar sin reconstruir (imágenes ya existentes)
+docker-compose up -d
+
+# Levantar solo la base de datos
+docker-compose up -d db
+
+# Levantar solo el servidor web
+docker-compose up -d web
+
+# Ver estado de los servicios
+docker-compose ps
+
+# Detener servicios (sin eliminar contenedores)
+docker-compose stop
+
+# Detener y eliminar contenedores (conserva volúmenes)
+docker-compose down
+
+# Detener, eliminar contenedores Y volúmenes
+docker-compose down --volumes
+```
+
+### 🔍 Inspección y Diagnóstico
+
+```
+# Ver logs en tiempo real de todos los servicios
+docker-compose logs -f
+
+# Ver logs solo del servicio web
+docker-compose logs -f web
+
+# Ver logs solo de la base de datos
+docker-compose logs -f db
+
+# Abrir terminal dentro del contenedor web
+docker exec -it tracker_web_server sh
+
+# Abrir terminal dentro del contenedor MySQL
+docker exec -it tracker_mysql_db bash
+
+# Conectarse a MySQL desde dentro del contenedor
+docker exec -it tracker_mysql_db mysql -u root -psecret tracker_db
+
+# Ver uso de recursos en tiempo real
+docker stats
+
+# Inspeccionar detalles de un contenedor
+docker inspect tracker_web_server
+docker inspect tracker_mysql_db
+
+# Ver red y contenedores conectados
+docker network inspect contenerizaciondeapliaciones_tracker_net
+```
 
 ---
